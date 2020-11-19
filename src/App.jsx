@@ -86,7 +86,7 @@ export default class App extends React.Component {
         } else {
           const elOneHeight = animations[i][2];
           const elTwoHeight = animations[i][3];
-          
+
           // Swap height values
           elOneStyle.height = `${elTwoHeight / 2}%`;
           elTwoStyle.height = `${elOneHeight / 2}%`;
@@ -197,7 +197,8 @@ export default class App extends React.Component {
   }
 
   render() {
-    let monkeySort = this.state.numElements < 9 ?
+    // monkeySort only shows up for 6 or less elements (otherwise it's basically infinite)
+    let monkeySort = this.state.numElements < 7 ?
       <button id="monkey-sort-btn" onClick={this.monkeySort}>Monkey Sort</button> : null;
 
     return (

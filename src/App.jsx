@@ -1,36 +1,224 @@
-import ArrayItem from './ArrayItem.jsx';
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
+import ArrayEl from './ArrayEl';
+import mergeSortAnimate from './Algorithms/mergeSort.js';
+import bubbleSortAnimate from './Algorithms/bubbleSort.js';
+import monkeySortAnimate from './Algorithms/monkeySort.js';
 
-function App() {
-  const [numElements, setNumElements] = useState(5);
+const PRIMARY_COLOR = "orange";
+const SECONDARY_COLOR = "#85e3ff";
+const POSITIVE_COLOR = "limegreen";
+const NEGATIVE_COLOR = "crimson";
+
+// IDEA: colorful sorting-- sort multiple columns simultaneously
+// Each column has many rows which are all pixels of a certain color
+// sort by hex value? maybe rgb/rgba somehow?
+// FIX update keys
+// slider for speed
+
+export default class App extends React.Component {
+  // Create state for the number of elements
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      speed: 500,
+      numElements: 5,
+      arrayNums: []
+    };
+
+    this.delay = this.delay.bind(this);
+    this.changeNumElements = this.changeNumElements.bind(this);
+    this.changeSpeed = this.changeSpeed.bind(this);
+    this.bubbleSort = this.bubbleSort.bind(this);
+    this.mergeSort = this.mergeSort.bind(this);
+    this.monkeySort = this.monkeySort.bind(this);
+    this.genNewArray = this.genNewArray.bind(this);
+  }
+
+  delay() {
+    return new Promise(resolve => setTimeout(resolve, 1000 - this.state.speed));
+  }
+
+  sortedAnimation() {
+    const arrayElements = document.getElementsByClassName('array-element');
+    for (let i = 0; i < arrayElements.length; ++i) {
+      arrayElements[i].style.backgroundColor = POSITIVE_COLOR;
+      setTimeout(() => arrayElements[i].style.backgroundColor = PRIMARY_COLOR, 500);
+    }
+  }
+
+  async monkeySort() {
+    const sort = monkeySortAnimate(this.state.arrayNums);
+    const animations = sort[0];
+    let i = 0;
+    while (i < animations.length) {
+      const arrayElements = document.getElementsByClassName('array-element');
+      while (animations[i][0] !== "checked") {
+        // Maybe push elements in another way also to make 
+        const [elOneIdx, elTwoIdx] = animations[i];
+        const elOneStyle = arrayElements[elOneIdx].style;
+        const elTwoStyle = arrayElements[elTwoIdx].style;
+        elOneStyle.backgroundColor = SECONDARY_COLOR;
+        elTwoStyle.backgroundColor = SECONDARY_COLOR;
+        await this.delay();
+        elOneStyle.backgroundColor = PRIMARY_COLOR;
+        elTwoStyle.backgroundColor = PRIMARY_COLOR;
+        i++;
+      }
+      if (animations[i][1]) {
+        break;
+      }
+      i++;
+      // Fix this part
+      while (animations[i] !== "randomized") {
+        const [elOneIdx, elTwoIdx] = animations[i].slice(0, 2);
+        const elOne = arrayElements[elOneIdx];
+        const elTwo = arrayElements[elTwoIdx];
+        const elOneStyle = elOne.style;
+        const elTwoStyle = elTwo.style;
+        if (animations[i][2] === true) {
+          elOneStyle.backgroundColor = SECONDARY_COLOR;
+          elTwoStyle.backgroundColor = SECONDARY_COLOR;
+          // Maybe make the delay cut in half so the color goes away after switching elements?
+          // *** Need to make it so the numbers displayed on the element bars change during sorting***
+          await this.delay();
+        } else {
+          const elOneHeight = animations[i][2];
+          const elTwoHeight = animations[i][3];
+          
+          // Swap height values
+          elOneStyle.height = `${elTwoHeight / 2}%`;
+          elTwoStyle.height = `${elOneHeight / 2}%`;
+          const temp = elOne.innerHTML;
+          elOne.innerHTML = elTwo.innerHTML;
+          elTwo.innerHTML = temp;
+
+          elOneStyle.backgroundColor = PRIMARY_COLOR;
+          elTwoStyle.backgroundColor = PRIMARY_COLOR;
+        }
+        i++;
+      }
+      i++;
+    }
+    this.sortedAnimation();
+    this.setState({ arrayNums: sort[1] });
+  }
+
+
+  async bubbleSort() {
+    const sort = bubbleSortAnimate(this.state.arrayNums);
+    const animations = sort[0];
+    for (let i = 0; i < animations.length; i++) {
+      const arrayElements = document.getElementsByClassName('array-element');
+      const switchColor = i % 3 !== 1;
+      if (switchColor) {
+        const [elOneIdx, elTwoIdx, shouldSwitch] = animations[i];
+        const color = i % 3 === 2 ?
+          PRIMARY_COLOR : shouldSwitch ?
+            NEGATIVE_COLOR : POSITIVE_COLOR;
+        await this.delay();
+        arrayElements[elOneIdx].style.backgroundColor = color;
+        arrayElements[elTwoIdx].style.backgroundColor = color;
+      } else {
+        let elOneIdx, elTwoIdx, elOneVal, elTwoVal
+        if (animations[i] !== null) {
+          [elOneIdx, elTwoIdx, elOneVal, elTwoVal] = animations[i];
+        } else { continue }
+
+        await this.delay();
+        const elOne = arrayElements[elOneIdx];
+        const elTwo = arrayElements[elTwoIdx];
+        elOne.style.height = `${elOneVal / 2}%`;
+        elTwo.style.height = `${elTwoVal / 2}%`;
+
+        // Swap numbers inside inner html of div (if there are any)
+        const temp = elOne.innerHTML;
+        elOne.innerHTML = elTwo.innerHTML;
+        elTwo.innerHTML = temp;
+      }
+    }
+    this.sortedAnimation();
+    this.setState({ arrayNums: sort[1] });
+  }
+
+  async mergeSort() {
+    const sort = mergeSortAnimate(this.state.arrayNums);
+    const animations = sort[0];
+    // iterate thorugh animations array
+    for (let i = 0; i < animations.length; i++) {
+      const arrayElements = document.getElementsByClassName('array-element');
+      const switchColor = i % 3 !== 1;
+      if (switchColor) {
+        // Get the first and second element being compared, and the k element where they will be merged to
+        const [elOneIdx, elTwoIdx] = animations[i];
+        const elOneStyle = arrayElements[elOneIdx].style;
+        const elTwoStyle = arrayElements[elTwoIdx].style;
+
+        const color = i % 3 === 0 ? SECONDARY_COLOR : PRIMARY_COLOR;
+        await this.delay();
+        elOneStyle.backgroundColor = color;
+        elTwoStyle.backgroundColor = color;
+      } else {
+        const [elIdx, elHeight] = animations[i];
+        await this.delay();
+        const elStyle = arrayElements[elIdx].style;
+        elStyle.height = `${elHeight / 2}%`;
+        // Change number in div, if there is one
+        arrayElements[elIdx].innerHTML = `${elHeight}`;
+      }
+    }
+    this.sortedAnimation();
+    this.setState({ arrayNums: sort[1] });
+  }
+
 
   // So that the slider can affect the number of elements in the array
-  function setNumElementsHelper(e) {
-    setNumElements(e.target.value);
+  changeNumElements(e) {
+    this.setState({ numElements: e.target.value }, this.genNewArray);
   }
 
-  let arrayNums = []
-  for (let i = 0; i < numElements; i++) {
-    arrayNums.push([Math.floor(Math.random() * 95 + 5), i]);
+  changeSpeed(e) {
+    this.setState({ speed: e.target.value });
   }
 
-  let array = arrayNums.map(number => (
-    <ArrayItem value={number[0]} key={number[1]} position={number[1]} numElements={numElements} />
-  ));
+  // Generates a new array when the component mounts
+  componentDidMount() {
+    this.genNewArray();
+  }
 
-  return (
-    <div id="app">
-      <div className="nav">
-        Welcome: <br />
-        <label for="num-elements"># of Elements ({numElements}): </label>
-        <input type="range" value={numElements} min="5" max="100" step="1" name="num-elements" onChange={setNumElementsHelper}></input>
+  // Method to generate a new array
+  genNewArray() {
+    const arrayNums = [];
+    for (let i = 0; i < this.state.numElements; i++) {
+      arrayNums.push(Math.floor(Math.random() * 195 + 5));
+    }
+    this.setState({ arrayNums });
+  }
+
+  render() {
+    let monkeySort = this.state.numElements < 9 ?
+      <button id="monkey-sort-btn" onClick={this.monkeySort}>Monkey Sort</button> : null;
+
+    return (
+      <div id="app">
+        <div className="nav">
+          Welcome: <br />
+          <label htmlFor="num-elements"># of Elements ({this.state.numElements}): </label>
+          <input type="range" value={this.state.numElements} min="5" max="100" step="1" name="num-elements" onChange={this.changeNumElements}></input>
+          <label htmlFor="sort-speed">Speed: </label>
+          <input type="range" value={this.state.speed} min="0" max="999" step="1" name="sort-speed" onChange={this.changeSpeed}></input>
+          <button id="merge-sort-btn" onClick={this.mergeSort}>Merge Sort</button>
+          <button id="bubble-sort-btn" onClick={this.bubbleSort}>Bubble Sort</button>
+          <button id="gen-new-array" onClick={this.genNewArray}>Generate New Array</button>
+          {monkeySort}
+        </div>
+        <div className="array">
+          {this.state.arrayNums.map((number, index) => (
+            <ArrayEl value={number} key={index} position={index} numElements={this.state.numElements} />
+          ))}
+        </div>
       </div>
-      <div className="array">
-        {array}
-      </div>
-    </div>
-  );
+    );
+  }
 }
-
-export default App;

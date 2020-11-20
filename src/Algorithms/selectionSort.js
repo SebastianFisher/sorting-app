@@ -28,7 +28,7 @@ function minNum(arr, start, animations) {
         } else {
             animations.push([i, false]);
         }
-        if (arr[i] > arr[i - 1]) {
+        if (arr[i] >= arr[i - 1]) {
             pairsSorted++;
         }
     }

@@ -10,10 +10,12 @@ export default function monkeySortAnimate(arr) {
 function isSorted(arr, animations) {
     for (let i = 0; i < arr.length - 1; ++i) {
         // Push indices that are being compared
-        animations.push([i, i + 1]);
         if (arr[i] > arr[i + 1]) {
+            animations.push([i, i + 1, false]);
             animations.push(["checked", false]);
             return false;
+        } else {
+            animations.push([i, i + 1, true]);
         }
     }
     animations.push(["checked", true]);
@@ -21,7 +23,7 @@ function isSorted(arr, animations) {
 }
 
 // Swap elements at indices i and j in arr
-function swap(arr, i, j, animations) {
+export function swap(arr, i, j, animations) {
     // Push indices color and uncolor elements and heights to switch them
     animations.push([i, j, true]);
     animations.push([i, j, arr[i], arr[j]]);

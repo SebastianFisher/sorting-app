@@ -180,13 +180,12 @@ export default class App extends React.Component {
   async selectionSort() {
     const sort = selectionSortAnimate(this.state.arrayNums);
     const animations = sort[0];
-    console.log(animations);
+
     let i = 0;
     while (i < animations.length) {
       const arrayElements = document.getElementsByClassName('array-element');
       let tempI = 0;
       while (animations[i] !== "max found") {
-        console.log(i);
         const colorCurrMin = tempI % 2 === 0;
         if (colorCurrMin) {
           const currMinStyle = arrayElements[animations[i]].style;

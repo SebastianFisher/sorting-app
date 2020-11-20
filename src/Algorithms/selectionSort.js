@@ -18,10 +18,8 @@ function selectionSort(arr, animations) {
 function minNum(arr, start, animations) {
     let min = arr[start];
     let minIdx = start;
-    let lastMinIdx = start;
     let pairsSorted = 0;
     for (let i = start + 1; i < arr.length; i++) {
-        console.log(i);
         animations.push(minIdx);
         if (arr[i] < min) {
             animations.push([i, true, minIdx]);
@@ -30,7 +28,7 @@ function minNum(arr, start, animations) {
         } else {
             animations.push([i, false]);
         }
-        if (i !== start && arr[i] > arr[i - 1]) {
+        if (arr[i] > arr[i - 1]) {
             pairsSorted++;
         }
     }

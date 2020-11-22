@@ -14,9 +14,9 @@ const NEGATIVE_COLOR = "crimson";
 
 // IDEA: colorful sorting-- sort multiple columns simultaneously
 // Each column has many rows which are all pixels of a certain color
-// sort by hex value? maybe rgb/rgba somehow?
-// FIX update keys
-// slider for speed
+// sort by wavelength?
+// Add disabled property to the generate new array button somehow
+// Change the divs  into buttons (I have the code pulled up on chrome)
 
 export default class App extends React.Component {
   // Create state for the number of elements
@@ -27,7 +27,7 @@ export default class App extends React.Component {
       speed: 500,
       numElements: 5,
       arrayNums: [],
-      algorithm: "Choose an Algorithm",
+      algorithm: "Bubble Sort",
       showAlgoChoices: false,
       inputDisabled: false
     };
@@ -284,7 +284,7 @@ export default class App extends React.Component {
   render() {
     let sortBtn = null;
     if (this.state.algorithm !== "Choose an Algorithm") {
-      sortBtn = <div className="nav-item nav-button" disabled={this.state.inputDisabled} onClick={this.sortAlgo}>Sort!</div>
+      sortBtn = <input type="button" className="nav-item nav-button" disabled={this.state.inputDisabled} onClick={this.sortAlgo} value="Sort!" />
     }
 
     let numElements = this.state.numElements;
@@ -294,11 +294,18 @@ export default class App extends React.Component {
       numElements = `0${numElements}`;
     }
 
+    let algoOptions = []
+    for (let i = 0; i < this.sortingAlgorithms.length; i++) {
+      if (this.sortingAlgorithms[i][0] !== this.state.algorithm) {
+        algoOptions.push(this.sortingAlgorithms[i][0]);
+      }
+    }
+
     return (
       <div id="app">
         <div className="nav">
           <strong>Sorting Visualizer</strong>
-          <Dropdown handleChoice={this.handleAlgoChoice} options={this.sortingAlgorithms.map(item => (item[0]))} displayValue={this.state.algorithm} />
+          <Dropdown handleChoice={this.handleAlgoChoice} options={algoOptions} displayValue={this.state.algorithm} />
           <div className="nav-item">
             <label htmlFor="num-elements"># of Elements ({numElements}): </label>
             <input type="range" disabled={(this.state.inputDisabled)} value={this.state.numElements} min="5" max="100" step="1" name="num-elements" onChange={this.changeNumElements}></input>
@@ -308,7 +315,7 @@ export default class App extends React.Component {
             <input type="range" value={this.state.speed} min="0" max="999" step="1" name="sort-speed" onChange={this.changeSpeed}></input>
           </div>
           {sortBtn}
-          <div className="nav-item nav-button" onClick={this.genNewArray}>Generate New Array</div>
+          <input type="button" className="nav-item nav-button" onClick={this.genNewArray} disabled={this.state.inputDisabled} value="Generate New Array" />
         </div>
         <div className="array">
           {this.state.arrayNums.map((number, index) => (

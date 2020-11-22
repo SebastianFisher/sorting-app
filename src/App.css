@@ -15,6 +15,10 @@ i {
   font-size: 75%;
 }
 
+input[type=range] {
+  cursor: grab;
+}
+
 strong {
   display: inline-block;
   padding: 0px 10px;
@@ -39,14 +43,30 @@ strong {
 }
 
 .nav-item.nav-button {
+  font-family: 'Lato';
+  font-size: 100%;
+  background-color: transparent;
+  color: #FFFFFF;
+  border: none;
   vertical-align: top;
   float: right;
   height: 100%;
-  padding: 10px;
 }
 
-.nav-item.nav-button:hover, .nav-item.nav-button:focus {
+.nav-item.nav-button:focus {
+  outline: none;
+}
+
+.nav-item.nav-button:active {
+  transform: scale(0.97);
+}
+
+.nav-item.nav-button:hover {
   background-color: #2980B9;
+}
+
+.nav-item.nav-button:disabled {
+  background-color: transparent;
 }
 
 label {

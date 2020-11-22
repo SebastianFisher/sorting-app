@@ -2,6 +2,7 @@
 export default function monkeySortAnimate(arr) {
     let animations = []
     const copyArr = arr.slice();
+    if (arr.length > 5) { return "warning" }
     monkeySort(copyArr, animations);
     return [animations, copyArr];
 }

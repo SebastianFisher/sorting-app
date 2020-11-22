@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import ArrayEl from './ArrayEl';
+import Dropdown from './Dropdown.jsx';
 import mergeSortAnimate from './Algorithms/mergeSort.js';
 import bubbleSortAnimate from './Algorithms/bubbleSort.js';
 import monkeySortAnimate from './Algorithms/monkeySort.js';
@@ -25,7 +26,10 @@ export default class App extends React.Component {
     this.state = {
       speed: 500,
       numElements: 5,
-      arrayNums: []
+      arrayNums: [],
+      algorithm: "Choose an Algorithm",
+      showAlgoChoices: false,
+      inputDisabled: false
     };
 
     this.delay = this.delay.bind(this);
@@ -36,6 +40,11 @@ export default class App extends React.Component {
     this.monkeySort = this.monkeySort.bind(this);
     this.selectionSort = this.selectionSort.bind(this);
     this.genNewArray = this.genNewArray.bind(this);
+    this.handleAlgoChoice = this.handleAlgoChoice.bind(this);
+    this.sortAlgo = this.sortAlgo.bind(this);
+
+    // array for the sorting algorithms
+    this.sortingAlgorithms = [["Bubble Sort", this.bubbleSort], ["Merge Sort", this.mergeSort], ["Selection Sort", this.selectionSort], ["Monkey Sort", this.monkeySort]];
   }
 
   delay() {
@@ -52,6 +61,10 @@ export default class App extends React.Component {
 
   async monkeySort() {
     const sort = monkeySortAnimate(this.state.arrayNums);
+    if (sort === "warning") {
+      alert("Monkey Sort is only allowed for arrays with 5 elements (otherwise it takes a while)");
+      return;
+    }
     const animations = sort[0];
     let i = 0;
     while (i < animations.length) {
@@ -212,9 +225,9 @@ export default class App extends React.Component {
       swapEl.style.backgroundColor = NEGATIVE_COLOR;
       currMinEl.style.backgroundColor = POSITIVE_COLOR;
       await this.delay();
-      
-      swapEl.style.height = `${animations[i][3]/2}%`;
-      currMinEl.style.height = `${animations[i][2]/2}%`;
+
+      swapEl.style.height = `${animations[i][3] / 2}%`;
+      currMinEl.style.height = `${animations[i][2] / 2}%`;
       let temp = swapEl.innerHTML;
       swapEl.innerHTML = currMinEl.innerHTML;
       currMinEl.innerHTML = temp;
@@ -238,6 +251,22 @@ export default class App extends React.Component {
     this.setState({ speed: e.target.value });
   }
 
+  handleAlgoChoice(algo) {
+    this.setState({ algorithm: algo });
+  }
+
+  async sortAlgo() {
+    this.setState({ inputDisabled: true });
+    for (let i = 0; i < this.sortingAlgorithms.length; i++) {
+      const algo = this.sortingAlgorithms[i]
+      if (this.state.algorithm === algo[0]) {
+        await algo[1]();
+        this.setState({ inputDisabled: false });
+        break;
+      }
+    }
+  }
+
   // Generates a new array when the component mounts
   componentDidMount() {
     this.genNewArray();
@@ -253,23 +282,33 @@ export default class App extends React.Component {
   }
 
   render() {
-    // monkeySort only shows up for 6 or less elements (otherwise it's basically infinite)
-    let monkeySort = this.state.numElements < 6 ?
-      <button id="monkey-sort-btn" onClick={this.monkeySort}>Monkey Sort</button> : null;
+    let sortBtn = null;
+    if (this.state.algorithm !== "Choose an Algorithm") {
+      sortBtn = <div className="nav-item nav-button" disabled={this.state.inputDisabled} onClick={this.sortAlgo}>Sort!</div>
+    }
+
+    let numElements = this.state.numElements;
+    if (numElements < 10) {
+      numElements = `00${numElements}`;
+    } else if (numElements < 100) {
+      numElements = `0${numElements}`;
+    }
 
     return (
       <div id="app">
         <div className="nav">
-          Welcome: <br />
-          <label htmlFor="num-elements"># of Elements ({this.state.numElements}): </label>
-          <input type="range" value={this.state.numElements} min="5" max="100" step="1" name="num-elements" onChange={this.changeNumElements}></input>
-          <label htmlFor="sort-speed">Speed: </label>
-          <input type="range" value={this.state.speed} min="0" max="999" step="1" name="sort-speed" onChange={this.changeSpeed}></input>
-          <button id="merge-sort-btn" onClick={this.mergeSort}>Merge Sort</button>
-          <button id="bubble-sort-btn" onClick={this.bubbleSort}>Bubble Sort</button>
-          <button id="selection-sort-btn" onClick={this.selectionSort}>Selection Sort</button>
-          {monkeySort}
-          <button id="gen-new-array" onClick={this.genNewArray}>Generate New Array</button>
+          <strong>Sorting Visualizer</strong>
+          <Dropdown handleChoice={this.handleAlgoChoice} options={this.sortingAlgorithms.map(item => (item[0]))} displayValue={this.state.algorithm} />
+          <div className="nav-item">
+            <label htmlFor="num-elements"># of Elements ({numElements}): </label>
+            <input type="range" disabled={(this.state.inputDisabled)} value={this.state.numElements} min="5" max="100" step="1" name="num-elements" onChange={this.changeNumElements}></input>
+          </div>
+          <div className="nav-item">
+            <label htmlFor="sort-speed">Speed: </label>
+            <input type="range" value={this.state.speed} min="0" max="999" step="1" name="sort-speed" onChange={this.changeSpeed}></input>
+          </div>
+          {sortBtn}
+          <div className="nav-item nav-button" onClick={this.genNewArray}>Generate New Array</div>
         </div>
         <div className="array">
           {this.state.arrayNums.map((number, index) => (

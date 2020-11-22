@@ -1,5 +1,8 @@
-html, body, #root{
+html, body, #root {
   height: 100vh;
+  font-family: 'Lato';
+  letter-spacing: 1;
+  font-size: 20px;
 }
 
 #app {
@@ -8,14 +11,57 @@ html, body, #root{
   height: 100%;
 }
 
+i {
+  font-size: 75%;
+}
+
+strong {
+  display: inline-block;
+  padding: 0px 10px;
+  box-sizing: border-box;
+}
+
 .nav {
   height: 5%;
+  min-height: 43px;
+  width: 100%;
   vertical-align: center;
+  text-align: left;
+  background-color: #3498DB;
+  color: white;
+  padding: 0 3px;
+}
+
+.nav-item {
+  display: inline-block;
+  padding: 0px 10px;
+  box-sizing: border-box;
+}
+
+.nav-item.nav-button {
+  vertical-align: top;
+  float: right;
+  height: 100%;
+  padding: 10px;
+}
+
+.nav-item.nav-button:hover, .nav-item.nav-button:focus {
+  background-color: #2980B9;
 }
 
 label {
   position: relative;
-  top: -3px;
+}
+
+input[type=range] {
+  display: inline-block;
+  margin: 0;
+  position: relative;
+  top: 3px;
+}
+
+input:disabled {
+  cursor: not-allowed;
 }
 
 .array {
@@ -24,17 +70,16 @@ label {
   margin: 0 auto;
   text-align: center;
   padding-bottom: 0;
+  position: relative;
 }
 
 .array-element {
-  display: inline-block;
   box-sizing: border-box;
+  display: inline-block;
   vertical-align: top;
   background-color: orange;
   border: 1px solid black;
   margin-left: -1px;
   overflow: hidden;
+  font-size: 75%;
 }
-
-
-

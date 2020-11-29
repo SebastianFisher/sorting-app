@@ -6,6 +6,7 @@ import mergeSortAnimate from './Algorithms/mergeSort.js';
 import bubbleSortAnimate from './Algorithms/bubbleSort.js';
 import monkeySortAnimate from './Algorithms/monkeySort.js';
 import selectionSortAnimate from './Algorithms/selectionSort.js';
+import insertionSortAnimate from './Algorithms/insertionSort.js';
 
 const PRIMARY_COLOR = "orange";
 const SECONDARY_COLOR = "#85e3ff";
@@ -39,12 +40,14 @@ export default class App extends React.Component {
     this.mergeSort = this.mergeSort.bind(this);
     this.monkeySort = this.monkeySort.bind(this);
     this.selectionSort = this.selectionSort.bind(this);
+    this.insertionSort = this.insertionSort.bind(this);
     this.genNewArray = this.genNewArray.bind(this);
     this.handleAlgoChoice = this.handleAlgoChoice.bind(this);
     this.sortAlgo = this.sortAlgo.bind(this);
 
     // array for the sorting algorithms
-    this.sortingAlgorithms = [["Bubble Sort", this.bubbleSort], ["Merge Sort", this.mergeSort], ["Selection Sort", this.selectionSort], ["Monkey Sort", this.monkeySort]];
+    this.sortingAlgorithms = [["Bubble Sort", this.bubbleSort], ["Merge Sort", this.mergeSort], ["Selection Sort", this.selectionSort],
+    ["Monkey Sort", this.monkeySort], ["Insertion Sort", this.insertionSort]];
   }
 
   delay() {
@@ -121,6 +124,39 @@ export default class App extends React.Component {
     this.setState({ arrayNums: sort[1] });
   }
 
+  async insertionSort() {
+    const sort = insertionSortAnimate(this.state.arrayNums);
+    const animations = sort[0];
+    for (let i = 0; i < animations.length; i++) {
+      const changeHeight = animations[i][2]? true : false;
+      const color = i % 2 === 0 ? SECONDARY_COLOR : PRIMARY_COLOR;
+      const arrayElements = document.getElementsByClassName('array-element');
+      const [elOneIdx, elTwoIdx] = animations[i];
+      const elOne = arrayElements[elOneIdx];
+      const elTwo = arrayElements[elTwoIdx];
+      await this.delay();
+      if (changeHeight) {
+        const [elOneHeight, elTwoHeight] = animations[i].slice(2);
+        // Delay then swap heights, color, and numbers inside the bars
+        elOne.style.height = `${elTwoHeight / 2}%`;
+        elTwo.style.height = `${elOneHeight / 2}%`;
+
+        // Swap numbers inside inner html of div (if there are any)
+        const temp = elOne.innerHTML;
+        elOne.innerHTML = elTwo.innerHTML;
+        elTwo.innerHTML = temp;
+
+        elOne.style.backgroundColor = color;
+        elTwo.style.backgroundColor = color;
+      } else {
+        elOne.style.backgroundColor = color;
+        elTwo.style.backgroundColor = color;
+      }
+    }
+
+    this.sortedAnimation();
+    this.setState({ arrayNums: sort[1] });
+  }
 
   async bubbleSort() {
     const sort = bubbleSortAnimate(this.state.arrayNums);
@@ -282,11 +318,6 @@ export default class App extends React.Component {
   }
 
   render() {
-    let sortBtn = null;
-    if (this.state.algorithm !== "Choose an Algorithm") {
-      sortBtn = <input type="button" className="nav-item nav-button" disabled={this.state.inputDisabled} onClick={this.sortAlgo} value="Sort!" />
-    }
-
     let numElements = this.state.numElements;
     if (numElements < 10) {
       numElements = `00${numElements}`;
@@ -304,8 +335,8 @@ export default class App extends React.Component {
     return (
       <div id="app">
         <div className="nav">
-          <strong>Sorting Visualizer</strong>
           <Dropdown handleChoice={this.handleAlgoChoice} options={algoOptions} displayValue={this.state.algorithm} />
+          <input type="button" className="nav-item nav-button" disabled={this.state.inputDisabled} onClick={this.sortAlgo} value="Sort!" />
           <div className="nav-item">
             <label htmlFor="num-elements"># of Elements ({numElements}): </label>
             <input type="range" disabled={(this.state.inputDisabled)} value={this.state.numElements} min="5" max="100" step="1" name="num-elements" onChange={this.changeNumElements}></input>
@@ -314,7 +345,6 @@ export default class App extends React.Component {
             <label htmlFor="sort-speed">Speed: </label>
             <input type="range" value={this.state.speed} min="0" max="999" step="1" name="sort-speed" onChange={this.changeSpeed}></input>
           </div>
-          {sortBtn}
           <input type="button" className="nav-item nav-button" onClick={this.genNewArray} disabled={this.state.inputDisabled} value="Generate New Array" />
         </div>
         <div className="array">

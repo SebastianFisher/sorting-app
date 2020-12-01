@@ -1,5 +1,3 @@
-import { swap } from "./monkeySort.js";
-
 export default function insertionSortAnimate(arr) {
     const animations = [];
     const copyArr = arr.slice();
